@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .card-hover:hover {
+    @apply -translate-y-2 shadow-2xl;
+  }
+  
+  .play-button {
+    @apply transition-all duration-300;
+  }
+  
+  .play-button:hover {
+    @apply scale-110;
+  }
+  
+  .gradient-overlay {
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
+  }
+  
+  .badge-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .social-icon {
+    @apply transition-transform duration-200;
+  }
+  
+  .social-icon:hover {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@view-transition {
+  navigation: auto;
+}
