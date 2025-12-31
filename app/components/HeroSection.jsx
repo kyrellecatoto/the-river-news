@@ -109,8 +109,6 @@ export default function HeroSection({ heroArticle, siteSettings, onArticleClick 
                   : 'Recently'
                 }
               </span>
-              <span className="hidden sm:inline">•</span>
-              <span>{heroArticle.read_time_minutes || 5} min read</span>
             </div>
           </div>
         </div>
