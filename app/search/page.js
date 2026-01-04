@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react"; // 1. Import Suspense
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "../lib/supabase/client";
 import Link from "next/link";
@@ -9,8 +9,8 @@ import { Calendar, Clock, MessageCircle } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-// 2. Rename your main logic to "SearchContent" (or similar)
-function SearchContent() {
+// Create a separate component for the search logic
+function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [results, setResults] = useState([]);
@@ -18,11 +18,12 @@ function SearchContent() {
   const [siteSettings, setSiteSettings] = useState({});
 
   useEffect(() => {
+    if (typeof window === 'undefined') return; // Don't run during SSR
+
     if (query) {
       performSearch(query);
     } else {
-        // If no query, we should still stop loading
-        setLoading(false);
+      setLoading(false);
     }
     fetchSiteSettings();
   }, [query]);
@@ -254,10 +255,23 @@ function SearchContent() {
   );
 }
 
+// Main page component with Suspense
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white">Loading...</div>}>
-      <SearchContent />
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
+        <Navbar />
+        <div className="flex-grow max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold mb-4">Search</h1>
+          </div>
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#667eea]"></div>
+          </div>
+        </div>
+      </div>
+    }>
+      <SearchResults />
     </Suspense>
   );
 }
