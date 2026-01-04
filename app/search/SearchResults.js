@@ -2,20 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
 import { createClient } from "../lib/supabase/client"; 
 import Link from "next/link";
-import { getStorageUrl } from "../lib/supabase/storage";
+import { getStorageUrl } from "../lib/supabase/storage"; 
 import { Calendar, Clock } from "lucide-react";
 
 export default function SearchResults() {
   const searchParams = useSearchParams();
-  // We use the hook here, so this file MUST be wrapped in Suspense where it's imported
   const query = searchParams.get("q") || "";
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const router = useRouter();
 
   useEffect(() => {
     if (query) {
@@ -29,7 +25,6 @@ export default function SearchResults() {
     try {
       setLoading(true);
       const supabase = createClient();
-
       const { data: searchResults, error } = await supabase
         .from("news_articles")
         .select(`*, category:news_categories(*)`)
@@ -59,7 +54,6 @@ export default function SearchResults() {
 
   return (
     <>
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-4">
           Search Results {query && `for "${query}"`}
@@ -69,7 +63,6 @@ export default function SearchResults() {
         </p>
       </div>
 
-      {/* Search Input inside the results area */}
       <div className="mb-8">
         <form 
           onSubmit={(e) => {
@@ -77,7 +70,7 @@ export default function SearchResults() {
             const formData = new FormData(e.target);
             const searchQuery = formData.get("search");
             if (searchQuery.trim()) {
-              router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+              window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
             }
           }}
           className="relative"
@@ -95,14 +88,12 @@ export default function SearchResults() {
         </form>
       </div>
 
-      {/* Loading */}
       {loading && (
         <div className="flex justify-center items-center py-16">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#667eea]"></div>
         </div>
       )}
 
-      {/* Results Grid */}
       {!loading && results.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {results.map((article) => (
