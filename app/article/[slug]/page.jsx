@@ -120,7 +120,7 @@ export default function ArticlePage() {
           category:news_categories(*)
         `)
         .order('published_at', { ascending: false })
-        .limit(30) // Increased limit to ensure we have data for National/Local sections
+        .limit(30) 
 
       if (error) throw error
       setLatestArticles(latestData || [])
