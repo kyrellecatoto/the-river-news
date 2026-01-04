@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react"; // 1. Import Suspense
 import { useSearchParams } from "next/navigation";
 import { createClient } from "../lib/supabase/client";
 import Link from "next/link";
@@ -9,7 +9,8 @@ import { Calendar, Clock, MessageCircle } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-export default function SearchPage() {
+// 2. Rename your main logic to "SearchContent" (or similar)
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [results, setResults] = useState([]);
@@ -19,6 +20,9 @@ export default function SearchPage() {
   useEffect(() => {
     if (query) {
       performSearch(query);
+    } else {
+        // If no query, we should still stop loading
+        setLoading(false);
     }
     fetchSiteSettings();
   }, [query]);
@@ -28,7 +32,6 @@ export default function SearchPage() {
       setLoading(true);
       const supabase = createClient();
 
-      // Search in multiple fields: title, subtitle, content, author
       const { data: searchResults, error } = await supabase
         .from("news_articles")
         .select(`
@@ -248,5 +251,13 @@ export default function SearchPage() {
 
       <Footer siteSettings={siteSettings} />
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white">Loading...</div>}>
+      <SearchContent />
+    </Suspense>
   );
 }
