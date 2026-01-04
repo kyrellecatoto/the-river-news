@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createClient } from "../lib/supabase/client"; 
 import Link from "next/link";
 import { getStorageUrl } from "../lib/supabase/storage";
@@ -13,6 +14,8 @@ export default function SearchResults() {
   const query = searchParams.get("q") || "";
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
 
   useEffect(() => {
     if (query) {
@@ -74,7 +77,7 @@ export default function SearchResults() {
             const formData = new FormData(e.target);
             const searchQuery = formData.get("search");
             if (searchQuery.trim()) {
-              window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
+              router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
             }
           }}
           className="relative"

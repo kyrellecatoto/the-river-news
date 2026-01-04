@@ -1,7 +1,7 @@
+export const dynamic = "force-dynamic";
+
 "use client";
 
-// This ensures the page is treated dynamically
-export const dynamic = "force-dynamic";
 
 import { useState, useEffect, Suspense } from "react";
 import { createClient } from "../lib/supabase/client";
