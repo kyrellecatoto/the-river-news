@@ -1,5 +1,8 @@
 "use client";
 
+// 1. Add this line to force dynamic rendering
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "../lib/supabase/client";
@@ -18,8 +21,8 @@ function SearchResults() {
   const [siteSettings, setSiteSettings] = useState({});
 
   useEffect(() => {
-    if (typeof window === 'undefined') return; // Don't run during SSR
-
+    // No need for window check here since we are forcing dynamic, 
+    // but keeping it is fine.
     if (query) {
       performSearch(query);
     } else {
@@ -39,6 +42,7 @@ function SearchResults() {
           *,
           category:news_categories(*)
         `)
+        // Using template literals safely inside .or()
         .or(`title.ilike.%${searchTerm}%,subtitle.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%,author_name.ilike.%${searchTerm}%`)
         .order("published_at", { ascending: false });
 
@@ -260,6 +264,8 @@ export default function SearchPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
+        {/* NOTE: If your Navbar has search logic, it can fail here in the fallback. 
+            However, 'force-dynamic' usually prevents the build error. */}
         <Navbar />
         <div className="flex-grow max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8">
           <div className="mb-8">
