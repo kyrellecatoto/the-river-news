@@ -1,18 +1,15 @@
 "use client";
 
-// Keep this to ensure the page doesn't try to be static
-export const dynamic = "force-dynamic";
-
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "../lib/supabase/client";
 import Link from "next/link";
 import { getStorageUrl } from "../lib/supabase/storage";
-import { Calendar, Clock, MessageCircle } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-// --- COMPONENT 1: Search Logic ---
+// Component that uses useSearchParams - wrapped in Suspense
 function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -61,7 +58,6 @@ function SearchResults() {
 
   return (
     <>
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-4">
           Search Results {query && `for "${query}"`}
@@ -71,7 +67,6 @@ function SearchResults() {
         </p>
       </div>
 
-      {/* Search Input */}
       <div className="mb-8">
         <form 
           onSubmit={(e) => {
@@ -97,14 +92,12 @@ function SearchResults() {
         </form>
       </div>
 
-      {/* Loading */}
       {loading && (
         <div className="flex justify-center items-center py-16">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#667eea]"></div>
         </div>
       )}
 
-      {/* Results Grid */}
       {!loading && results.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {results.map((article) => (
@@ -146,9 +139,8 @@ function SearchResults() {
   );
 }
 
-// --- MAIN PAGE COMPONENT ---
+// Main page component
 export default function SearchPage() {
-  // We manage site settings here to pass to Footer
   const [siteSettings, setSiteSettings] = useState({});
 
   useEffect(() => {
@@ -164,18 +156,9 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
-      {/* CRITICAL FIX: 
-        Navbar is wrapped in its own Suspense because it likely uses useSearchParams 
-        to show the current search query in the nav bar input.
-      */}
-      <Suspense fallback={<div className="h-16 bg-[#111111] border-b border-[#222222]" />}>
-        <Navbar />
-      </Suspense>
-
+      <Navbar />
+      
       <main className="flex-grow max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8">
-        {/* SearchResults is wrapped in its own Suspense.
-          This separates it from the Navbar.
-        */}
         <Suspense fallback={
           <div className="flex justify-center items-center py-16">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#667eea]"></div>
