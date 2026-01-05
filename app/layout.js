@@ -1,6 +1,6 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
-import Script from 'next/script' // 1. Import the Script component
+import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,13 +15,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full">
-      <head>
-        <script src="/_sdk/element_sdk.js" defer></script>
-        <script src="/_sdk/data_sdk.js" type="text/javascript" defer></script>
-      </head>
+      
       <body className={`${inter.className} h-full overflow-auto`}>
-        {children}
-
+        
+        <Script src="/_sdk/element_sdk.js" strategy="beforeInteractive" />
+        <Script src="/_sdk/data_sdk.js" strategy="beforeInteractive" />
 
         <Script
           async
@@ -29,6 +27,8 @@ export default function RootLayout({ children }) {
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+
+        {children}
 
         <script dangerouslySetInnerHTML={{
           __html: `
