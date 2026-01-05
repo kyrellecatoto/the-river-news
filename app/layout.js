@@ -1,41 +1,47 @@
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Script from 'next/script'
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/react';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'The River',
-  description: 'youth-run press, for agusan & beyond',
+  description: 'Youth-run press, for Agusan & beyond',
   icons: {
-    icon: "/favicon.ico",
+    icon: '/favicon.ico',
   },
-}
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full">
-      
-      <body className={`${inter.className} h-full overflow-auto`}>
-        
-        <Script src="/_sdk/element_sdk.js" strategy="beforeInteractive" />
-        <Script src="/_sdk/data_sdk.js" strategy="beforeInteractive" />
-
+      <body className={inter.className}>
+        {/* Google Analytics */}
         <Script
+          strategy="lazyOnload"
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}`}
+        />
+        <Script id="google-analytics" strategy="lazyOnload">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
+          `}
+        </Script>
+
+        {/* Google AdSense */}
+        <Script
+          strategy="afterInteractive"
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6596634799308501"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
 
         {children}
-
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b452ab6224c403a',t:'MTc2NjgwMDIyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
-          `
-        }} />
+        <Analytics />
       </body>
     </html>
-  )
+  );
 }
