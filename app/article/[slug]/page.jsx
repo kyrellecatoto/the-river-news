@@ -25,6 +25,10 @@ export async function generateMetadata({ params }) {
 
   let imageUrl = article.cover_image_url
   if (imageUrl && !imageUrl.startsWith('http')) {
+    const bucketName = 'article-images'
+    if (!imageUrl.startsWith(bucketName)) {
+        imageUrl = `${bucketName}/${imageUrl}`
+  }
     imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${imageUrl}`
   }
 
@@ -38,7 +42,7 @@ export async function generateMetadata({ params }) {
       siteName: 'The River',
       images: [
         {
-          url: imageUrl || 'https://yourwebsite.com/default-news.jpg', // Fallback image
+          url: imageUrl || 'https://the-river-news.live/default-news.jpg', // Fallback image
           width: 1200,
           height: 630,
         },

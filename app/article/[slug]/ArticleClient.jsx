@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Navbar from './../../components/Navbar'
+import Navbar from '../../components/Navbar'
 import Link from 'next/link'
 import { createClient } from '../../lib/supabase/client'
 import Footer from '../../components/Footer'
