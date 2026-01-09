@@ -68,6 +68,7 @@ export default function DashboardLayout({ children }) {
     { href: '/admin/dashboard/categories', icon: Folder, label: 'Categories' },
     { href: '/admin/dashboard/analytics', icon: BarChart, label: 'Analytics' },
     { href: '/admin/dashboard/settings', icon: Settings, label: 'Settings' },
+    { href: '/admin/dashboard/applications', icon: Users, label: 'Applications' },
   ]
 
   return (

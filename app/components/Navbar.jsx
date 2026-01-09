@@ -116,6 +116,8 @@ export default function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex gap-4 items-center z-10">
+          <Link href="/join" className="text-purple-600 no-underline text-sm font-medium hover:text-gray-300">JOIN US</Link>
+
             {/* Desktop Search */}
             <div ref={searchRef} className="relative flex items-center justify-end">
               <button
@@ -130,6 +132,7 @@ export default function Navbar() {
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </button>
+              
 
               <div 
                 className={`absolute right-0 flex items-center bg-[#111111] border border-[#333333] rounded-full overflow-hidden transition-all duration-300 ease-in-out ${
@@ -161,6 +164,7 @@ export default function Navbar() {
             >
               Subscribe
             </button>
+            
 
             <Link href="/admin">
               <div className="w-8 h-8 bg-gradient-to-br from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center cursor-pointer">
@@ -171,6 +175,7 @@ export default function Navbar() {
 
           {/*MOBILE ACTIONS*/}
           <div className="md:hidden flex items-center gap-2 z-10">
+            <Link href="/join" className="text-purple-600 no-underline text-sm font-medium hover:text-gray-300">JOIN US</Link>
             
             <div ref={mobileSearchRef} className="relative flex items-center justify-end">
                 <button

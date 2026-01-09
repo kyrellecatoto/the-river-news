@@ -57,7 +57,7 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const [timeRange, setTimeRange] = useState('week') // week, month, year, all
+  const [timeRange, setTimeRange] = useState('week') 
   const itemsPerPage = 10
 
   useEffect(() => {
