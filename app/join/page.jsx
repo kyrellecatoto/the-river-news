@@ -42,10 +42,9 @@ export default function VolunteerPage() {
 
   // Departments List
   const departments = [
-    "News Desk", "Opinion Desk", "Feature Desk", "Scitech/Devcom Desk",
-    "Sports Desk", "Layout Desk", "Editorial Cartooning Desk",
-    "Copyediting & Fact-checking Desk", "Literary Desk",
-    "Photojournalism Desk", "Mobile Journalism Desk"
+    "News Writer", "Opinion Writer", "Feature Writer", 
+    "Sports Writer", "Layout Artist", "Editorial Cartoonist", 
+    "Photojournalist"
   ]
 
   const handleChange = (e) => {

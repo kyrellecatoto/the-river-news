@@ -30,10 +30,9 @@ export default function ApplicationsPage() {
   const itemsPerPage = 10
 
   const departments = [
-    "News Desk", "Opinion Desk", "Feature Desk", "Scitech/Devcom Desk", 
-    "Sports Desk", "Layout Desk", "Editorial Cartooning Desk", 
-    "Copyediting & Fact-checking Desk", "Literary Desk", 
-    "Photojournalism Desk", "Mobile Journalism Desk"
+    "News Writer", "Opinion Writer", "Feature Writer", 
+    "Sports Writer", "Layout Artist", "Editorial Cartoonist", 
+    "Photojournalist"
   ]
 
   useEffect(() => {
