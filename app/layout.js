@@ -20,10 +20,9 @@ export default function RootLayout({ children }) {
         <meta name="title" content="The River" />
         <meta
           name="description"
-          content="Your site description here" // Add description content
+          content="Your site description here" 
         />
         
-        {/* Google AdSense Script - Load it in head */}
         <Script
           id="adsbygoogle-init"
           strategy="afterInteractive"
