@@ -20,7 +20,6 @@ function toNonNegativeInt(v) {
 }
 
 function parseNumberInput(raw) {
-  // allow blank while typing
   if (raw === '') return ''
   const n = Number(raw)
   if (!Number.isFinite(n)) return ''
@@ -29,9 +28,10 @@ function parseNumberInput(raw) {
 
 export default function AdminPalaroTallyPage() {
   const router = useRouter()
+
   const [loading, setLoading] = useState(true)
   const [regions, setRegions] = useState([])
-  const [tallyMap, setTallyMap] = useState({}) // key => {gold,silver,bronze}
+  const [tallyMap, setTallyMap] = useState({})
   const [savingKey, setSavingKey] = useState(null)
 
   useEffect(() => {
@@ -42,10 +42,12 @@ export default function AdminPalaroTallyPage() {
   async function checkAuthAndLoad() {
     try {
       const user = await getCurrentUser()
+
       if (!user) {
         router.push('/admin/login')
         return
       }
+
       await loadAll()
     } catch (e) {
       console.error(e)
@@ -56,12 +58,20 @@ export default function AdminPalaroTallyPage() {
   async function loadAll() {
     try {
       setLoading(true)
+
       const supabase = createClient()
 
-      const [{ data: rData, error: rErr }, { data: tData, error: tErr }] = await Promise.all([
-        supabase.from('palaro_regions').select('code,name,sort_order').order('sort_order', { ascending: true }),
-        supabase.from('palaro_medal_tally').select('region_code,division,event_group,gold,silver,bronze'),
-      ])
+      const [{ data: rData, error: rErr }, { data: tData, error: tErr }] =
+        await Promise.all([
+          supabase
+            .from('palaro_regions')
+            .select('code,name,sort_order')
+            .order('sort_order', { ascending: true }),
+
+          supabase
+            .from('palaro_medal_tally')
+            .select('region_code,division,event_group,gold,silver,bronze'),
+        ])
 
       if (rErr) throw rErr
       if (tErr) throw tErr
@@ -69,6 +79,7 @@ export default function AdminPalaroTallyPage() {
       setRegions(rData || [])
 
       const map = {}
+
       ;(tData || []).forEach((row) => {
         map[keyOf(row.region_code, row.division, row.event_group)] = {
           gold: row.gold ?? 0,
@@ -76,6 +87,7 @@ export default function AdminPalaroTallyPage() {
           bronze: row.bronze ?? 0,
         }
       })
+
       setTallyMap(map)
     } catch (e) {
       console.error(e)
@@ -86,14 +98,24 @@ export default function AdminPalaroTallyPage() {
   }
 
   function getCell(region_code, division, event_group) {
-    return tallyMap[keyOf(region_code, division, event_group)] || { gold: 0, silver: 0, bronze: 0 }
+    return (
+      tallyMap[keyOf(region_code, division, event_group)] || {
+        gold: 0,
+        silver: 0,
+        bronze: 0,
+      }
+    )
   }
 
   function setCell(region_code, division, event_group, patch) {
     const k = keyOf(region_code, division, event_group)
+
     setTallyMap((prev) => ({
       ...prev,
-      [k]: { ...(prev[k] || { gold: 0, silver: 0, bronze: 0 }), ...patch },
+      [k]: {
+        ...(prev[k] || { gold: 0, silver: 0, bronze: 0 }),
+        ...patch,
+      },
     }))
   }
 
@@ -103,6 +125,7 @@ export default function AdminPalaroTallyPage() {
 
     try {
       setSavingKey(k)
+
       const supabase = createClient()
 
       const payload = {
@@ -120,6 +143,7 @@ export default function AdminPalaroTallyPage() {
       })
 
       if (error) throw error
+
       toast.success('Saved')
     } catch (e) {
       console.error(e)
@@ -129,18 +153,6 @@ export default function AdminPalaroTallyPage() {
     }
   }
 
-  const columns = useMemo(() => {
-    // creates 6 blocks: Elementary(regular/demo/para) + Secondary(regular/demo/para)
-    const cols = []
-    for (const division of DIVISIONS) {
-      for (const group of GROUPS) {
-        cols.push({ division, group, label: `${division} • ${group}` })
-      }
-    }
-    return cols
-  }, [])
-
-  // Totals per region + ranking (Gold → Silver → Bronze)
   const regionStats = useMemo(() => {
     const totals = regions.map((r) => {
       let gold = 0
@@ -150,13 +162,17 @@ export default function AdminPalaroTallyPage() {
       for (const division of DIVISIONS) {
         for (const group of GROUPS) {
           const c = getCell(r.code, division, group)
+
           gold += toNonNegativeInt(c.gold)
           silver += toNonNegativeInt(c.silver)
           bronze += toNonNegativeInt(c.bronze)
         }
       }
 
-      return { code: r.code, total: { gold, silver, bronze } }
+      return {
+        code: r.code,
+        total: { gold, silver, bronze },
+      }
     })
 
     const sorted = [...totals].sort((a, b) => {
@@ -176,6 +192,7 @@ export default function AdminPalaroTallyPage() {
     })
 
     return { rankByCode, totalsByCode }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regions, tallyMap])
 
@@ -191,11 +208,15 @@ export default function AdminPalaroTallyPage() {
     <div className="p-6 space-y-6">
       <Toaster position="top-right" />
 
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Palarong Pambansa 2026 — Medal Tally</h1>
+          <h1 className="text-2xl font-bold text-white">
+            Palarong Pambansa 2026 — Medal Tally
+          </h1>
+
           <p className="text-gray-400 text-sm mt-1">
-            Edit medal counts by Region × (Elementary/Secondary) × (Regular/Demo/Para). Ranking updates automatically.
+            Edit medal counts by Region, Division, and Event Group. Ranking updates
+            automatically.
           </p>
         </div>
 
@@ -207,119 +228,156 @@ export default function AdminPalaroTallyPage() {
         </button>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-[1400px] w-full">
-            <thead className="bg-gray-950">
-              <tr className="text-left text-xs text-gray-300">
-                <th className="p-4 w-[90px]">Rank</th>
-                <th className="p-4 w-[320px]">Region</th>
-                <th className="p-4 w-[220px]">
-                  <div className="font-bold">Totals</div>
-                  <div className="text-[10px] text-gray-500 mt-1">Gold / Silver / Bronze</div>
-                </th>
+      <div className="space-y-4">
+        {regions.map((r) => {
+          const rank = regionStats.rankByCode[r.code] ?? '-'
+          const t = regionStats.totalsByCode[r.code] || {
+            gold: 0,
+            silver: 0,
+            bronze: 0,
+          }
 
-                {columns.map((c) => (
-                  <th key={c.label} className="p-4">
-                    <div className="font-bold capitalize">{c.label}</div>
-                    <div className="text-[10px] text-gray-500 mt-1">Gold / Silver / Bronze</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
+          return (
+            <div
+              key={r.code}
+              className="bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-5"
+            >
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                  <div className="text-sm text-gray-400">Rank #{rank}</div>
 
-            <tbody>
-              {regions.map((r) => {
-                const rank = regionStats.rankByCode[r.code] ?? '-'
-                const t = regionStats.totalsByCode[r.code] || { gold: 0, silver: 0, bronze: 0 }
+                  <h2 className="text-xl font-bold text-white">{r.name}</h2>
 
-                return (
-                  <tr key={r.code} className="border-t border-gray-800 hover:bg-gray-800/30">
-                    <td className="p-4 text-white font-extrabold">{rank}</td>
+                  <div className="text-xs text-gray-500">{r.code}</div>
+                </div>
 
-                    <td className="p-4">
-                      <div className="text-white font-semibold">{r.name}</div>
-                      <div className="text-[11px] text-gray-500">{r.code}</div>
-                    </td>
+                <div className="flex flex-wrap gap-2 text-sm">
+                  <span className="px-3 py-2 rounded-lg bg-gray-950 border border-yellow-400/30 text-white">
+                    🥇 {t.gold}
+                  </span>
 
-                    <td className="p-4">
-                      <div className="inline-flex items-center gap-2 text-sm">
-                        <span className="px-2 py-1 rounded bg-gray-950 border border-yellow-400/30 text-white">
-                          {t.gold}
-                        </span>
-                        <span className="px-2 py-1 rounded bg-gray-950 border border-gray-300/30 text-white">
-                          {t.silver}
-                        </span>
-                        <span className="px-2 py-1 rounded bg-gray-950 border border-orange-300/30 text-white">
-                          {t.bronze}
-                        </span>
-                      </div>
-                    </td>
+                  <span className="px-3 py-2 rounded-lg bg-gray-950 border border-gray-300/30 text-white">
+                    🥈 {t.silver}
+                  </span>
 
-                    {columns.map((c) => {
-                      const cell = getCell(r.code, c.division, c.group)
-                      const k = keyOf(r.code, c.division, c.group)
-                      const isSaving = savingKey === k
+                  <span className="px-3 py-2 rounded-lg bg-gray-950 border border-orange-300/30 text-white">
+                    🥉 {t.bronze}
+                  </span>
+                </div>
+              </div>
 
-                      return (
-                        <td key={k} className="p-4 align-top">
-                          <div className="grid grid-cols-3 gap-2">
-                            <input
-                              type="number"
-                              min="0"
-                              inputMode="numeric"
-                              value={cell.gold}
-                              onChange={(e) =>
-                                setCell(r.code, c.division, c.group, { gold: parseNumberInput(e.target.value) })
-                              }
-                              className="w-full px-3 py-2 rounded-lg bg-gray-950 border border-gray-800 text-white text-sm focus:outline-none focus:border-yellow-400"
-                              placeholder="G"
-                            />
-                            <input
-                              type="number"
-                              min="0"
-                              inputMode="numeric"
-                              value={cell.silver}
-                              onChange={(e) =>
-                                setCell(r.code, c.division, c.group, { silver: parseNumberInput(e.target.value) })
-                              }
-                              className="w-full px-3 py-2 rounded-lg bg-gray-950 border border-gray-800 text-white text-sm focus:outline-none focus:border-gray-300"
-                              placeholder="S"
-                            />
-                            <input
-                              type="number"
-                              min="0"
-                              inputMode="numeric"
-                              value={cell.bronze}
-                              onChange={(e) =>
-                                setCell(r.code, c.division, c.group, { bronze: parseNumberInput(e.target.value) })
-                              }
-                              className="w-full px-3 py-2 rounded-lg bg-gray-950 border border-gray-800 text-white text-sm focus:outline-none focus:border-orange-300"
-                              placeholder="B"
-                            />
-                          </div>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                {DIVISIONS.map((division) => (
+                  <div
+                    key={division}
+                    className="bg-gray-950/60 border border-gray-800 rounded-xl p-4"
+                  >
+                    <h3 className="text-white font-bold capitalize mb-4">
+                      {division}
+                    </h3>
 
-                          <button
-                            onClick={() => saveCell(r.code, c.division, c.group)}
-                            disabled={isSaving}
-                            className="mt-2 w-full px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white text-xs font-bold"
+                    <div className="space-y-4">
+                      {GROUPS.map((group) => {
+                        const cell = getCell(r.code, division, group)
+                        const k = keyOf(r.code, division, group)
+                        const isSaving = savingKey === k
+
+                        return (
+                          <div
+                            key={k}
+                            className="bg-gray-900 border border-gray-800 rounded-xl p-4"
                           >
-                            {isSaving ? 'Saving…' : 'Save'}
-                          </button>
-                        </td>
-                      )
-                    })}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="text-white font-semibold capitalize">
+                                {group}
+                              </div>
 
-        <div className="p-4 border-t border-gray-800 text-xs text-gray-400">
-          Ranking is computed from totals: <span className="text-gray-200 font-semibold">Gold</span> →{' '}
-          <span className="text-gray-200 font-semibold">Silver</span> →{' '}
-          <span className="text-gray-200 font-semibold">Bronze</span>.
+                              <button
+                                onClick={() => saveCell(r.code, division, group)}
+                                disabled={isSaving}
+                                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white text-xs font-bold"
+                              >
+                                {isSaving ? 'Saving…' : 'Save'}
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <label className="space-y-1">
+                                <span className="text-xs text-yellow-300">
+                                  Gold
+                                </span>
+
+                                <input
+                                  type="number"
+                                  min="0"
+                                  inputMode="numeric"
+                                  value={cell.gold}
+                                  onChange={(e) =>
+                                    setCell(r.code, division, group, {
+                                      gold: parseNumberInput(e.target.value),
+                                    })
+                                  }
+                                  className="w-full px-4 py-3 rounded-lg bg-gray-950 border border-gray-800 text-white text-base focus:outline-none focus:border-yellow-400"
+                                  placeholder="0"
+                                />
+                              </label>
+
+                              <label className="space-y-1">
+                                <span className="text-xs text-gray-300">
+                                  Silver
+                                </span>
+
+                                <input
+                                  type="number"
+                                  min="0"
+                                  inputMode="numeric"
+                                  value={cell.silver}
+                                  onChange={(e) =>
+                                    setCell(r.code, division, group, {
+                                      silver: parseNumberInput(e.target.value),
+                                    })
+                                  }
+                                  className="w-full px-4 py-3 rounded-lg bg-gray-950 border border-gray-800 text-white text-base focus:outline-none focus:border-gray-300"
+                                  placeholder="0"
+                                />
+                              </label>
+
+                              <label className="space-y-1">
+                                <span className="text-xs text-orange-300">
+                                  Bronze
+                                </span>
+
+                                <input
+                                  type="number"
+                                  min="0"
+                                  inputMode="numeric"
+                                  value={cell.bronze}
+                                  onChange={(e) =>
+                                    setCell(r.code, division, group, {
+                                      bronze: parseNumberInput(e.target.value),
+                                    })
+                                  }
+                                  className="w-full px-4 py-3 rounded-lg bg-gray-950 border border-gray-800 text-white text-base focus:outline-none focus:border-orange-300"
+                                  placeholder="0"
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+
+        <div className="p-4 bg-gray-900 border border-gray-800 rounded-xl text-xs text-gray-400">
+          Ranking is computed from totals:
+          <span className="text-gray-200 font-semibold"> Gold</span> →
+          <span className="text-gray-200 font-semibold"> Silver</span> →
+          <span className="text-gray-200 font-semibold"> Bronze</span>.
         </div>
       </div>
     </div>
